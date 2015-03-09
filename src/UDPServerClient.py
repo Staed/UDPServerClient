@@ -52,6 +52,7 @@ class UDPServerClient:
                 central_server = central_server.split("=")
                 central_server = central_server[1].strip()
                 self.c = central_server
+                print "UDP Server Client> The UDP Server has been configured to central server:", central_server
 
                 self.s_listen=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 self.s_send=socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -122,12 +123,15 @@ class UDPServerClient:
                     cmd = msgM[0]
                     var = msgM[1]
                     val = msgM[2]
-                    if cmd == 'Write' or cmd == 'write':
-                        data[var] = val
-                    if cmd == 'Read' or cmd == 'read':
-                        # @TODO[Kelsey] Check if sending back to central server is needed
-                        print 'Variable %s has value %s' % (var, data[var])
-                    self.send() # Send ack to central server (modify send(self) to accept input via program)
+
+                    if cmd != 'ack' and cmd != 'Ack':
+                        if cmd == 'Write' or cmd == 'write':
+                            data[var] = val
+                        if cmd == 'Read' or cmd == 'read':
+                            # @TODO[Kelsey] Check if sending back to central server is needed
+                            print 'Variable %s has value %s' % (var, data[var])
+                        ackMsg = 'ack 0 ' + self.c
+                        self.s_send.sendto(ackMsg, (self.h, int(self.c)))
 
                 print 'UDP Server Client> Enter message to send:'
             
